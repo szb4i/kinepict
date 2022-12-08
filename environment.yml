@@ -6,3 +6,4 @@ dependencies:
   - pip:
       - pydicom==2.3.0
       - scipy==1.9.3
+      - scikit-image==0.19.3
