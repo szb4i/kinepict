@@ -1,0 +1,8 @@
+name: kinepict
+dependencies:
+  - python=3.10.6
+  - numpy=1.23.4
+  - pip
+  - pip:
+      - pydicom==2.3.0
+      - scipy==1.9.3
