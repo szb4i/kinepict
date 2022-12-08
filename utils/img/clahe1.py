@@ -31,7 +31,7 @@ def interpolate(subBin,LU,RU,LB,RB,subX,subY):
 
 #CLAHE FUNCTION
 #ALL UTILITY FUNCTIONS COMBINED INTO ONE FUNCTION
-def clahe(img,clipLimit,nrBins=128,nrX=0,nrY=0):
+def clahe1(img,clipLimit,nrBins=128,nrX=0,nrY=0):
     '''img - Input image
        clipLimit - Normalized clipLimit. Higher value gives more contrast
        nrBins - Number of graylevel bins for histogram("dynamic range")
