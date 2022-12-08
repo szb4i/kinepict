@@ -17,12 +17,19 @@ img_width = img.shape[1]
 
 ### wl operator
 C = 9*np.identity(9)+np.full((9,9), -1)
+normalizing_const = 1/(9**2)
 kernel_dx = 1
 kernel_dy = 1
-output_wl = np.zeros((img_height, img_width))
-output_wl_1 = np.zeros((img_height, img_width))
+img_wl = np.zeros((img_height, img_width))
 for x in range(kernel_dy, img_height - kernel_dy):
   for y in range(kernel_dx, img_width - kernel_dx):
     region_flatten = img[x - kernel_dx: x + kernel_dx + 1, y - kernel_dy: y + kernel_dy + 1].flatten()
-    output_wl[x,y] = 0.01234567*(region_flatten.dot(C.dot(region_flatten)))
-np.savetxt('output_wl' + '.txt', output_wl, delimiter='\t')
+    img_wl[x,y] = normalizing_const*(region_flatten.dot(C.dot(region_flatten)))
+img_wl_gamma = img_wl**0.5
+# plt.figure(figsize=(12,7))
+# plt.subplot(1,2,1)
+# plt.imshow(img, cmap='gray')
+# plt.subplot(1,2,2)
+# plt.imshow(output_wl, cmap='gray')
+# plt.show()
+np.savetxt('./outputs/method4' + '.txt', img_wl_gamma, delimiter='\t')
