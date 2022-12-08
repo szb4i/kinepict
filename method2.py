@@ -16,12 +16,11 @@ from utils.img.scaler import scale
 
 ### read dva
 img = read_dva('./data/PATIENT_28_1.XA.0001.0001.2020.05.26.07.40.37.199459.139512372.IMA')
-img_min, img_max = np.amin(img), np.amax(img)
 
 ### combining spatial enhancement methods
 kernel_laplacian = get_laplacian_kernel()
 laplacian_img = convolve2d(img, kernel_laplacian, mode='same')
-laplacian_img = scale(laplacian_img, img_max)
+laplacian_img[laplacian_img < 0] = 0
 sum_laplacian_pure_img = img + laplacian_img
 kernel_sobel_x = get_sobel_x_kernel()
 kernel_sobel_y = get_sobel_y_kernel()
@@ -32,30 +31,12 @@ kernel_box = get_box_kernel(5)
 boxed_sobel_img = convolve2d(sobel_img, kernel_box, mode='same', boundary = 'symm', fillvalue=0)
 # boxed_sobel_img = gaussian_filter(sobel_img, sigma=1)
 product = sum_laplacian_pure_img * boxed_sobel_img
-final_img = img + product
-gamma_corrected_final_img = np.array(final_img ** 0.5)
-# # fig, ax = plt.subplots(2,4, figsize=(12,7))
-# # ax[0, 0].imshow(img, cmap='gray')
-# # ax[0, 0].set_title('img')
-# # ax[0, 1].imshow(laplacian_img, cmap='gray', vmin = img_min, vmax = img_max)
-# # ax[0, 1].set_title('laplacian_img')
-# # ax[0, 2].imshow(sum_laplacian_pure_img, cmap='gray', vmin = img_min, vmax = img_max)
-# # ax[0, 2].set_title('sum_laplacian_pure_img')
-# # ax[0, 3].imshow(sobel_img, cmap='gray', vmin = img_min, vmax = img_max)
-# # ax[0, 3].set_title('sobel_img')
-# # ax[1, 0].imshow(boxed_sobel_img, cmap='gray', vmin = img_min, vmax = img_max)
-# # ax[1, 0].set_title('boxed_sobel_img')
-# # ax[1, 1].imshow(product, cmap='gray')
-# # ax[1, 1].set_title('product')
-# # ax[1, 2].imshow(final_img, cmap='gray')
-# # ax[1, 2].set_title('final_img')
-# # ax[1, 3].imshow(gamma_corrected_final_img, cmap='gray')
-# # ax[1, 3].set_title('gamma_corrected_final_img')
-# # fig, ax = plt.subplots(1,2, figsize=(12,5))
-# # ax[0].imshow(img, cmap='gray')
-# # ax[1].imshow(gamma_corrected_final_img, cmap='gray')
-# # plt.show()
-from PIL import Image as im
-gamma_corrected_final_img = ((gamma_corrected_final_img/gamma_corrected_final_img.max())*255).astype(np.uint8)
-data = im.fromarray(gamma_corrected_final_img)
-data.save('method2.png')
+img_product_sum = img + product
+img_product_sum_gamma = np.array(img_product_sum ** 0.5)
+# plt.figure(figsize=(12,7))
+# plt.subplot(1,2,1)
+# plt.imshow(img, cmap='gray')
+# plt.subplot(1,2,2)
+# plt.imshow(img_product_sum_gamma, cmap='gray')
+# plt.show()
+np.savetxt('./outputs/method2' + '.txt', img_product_sum_gamma, delimiter='\t')
