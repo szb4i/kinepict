@@ -26,7 +26,6 @@ img_blured = gaussian_filter(img, sigma=3)
 kernel_dx = 1
 kernel_dy = 1
 img_edge = np.zeros((img_height, img_width))
-img_edge_1 = np.zeros((img_height, img_width))
 for x in range(kernel_dy, img_height - kernel_dy):
   for y in range(kernel_dx, img_width - kernel_dx):
     partition = img_blured[x - kernel_dx: x + kernel_dx + 1, y - kernel_dy: y + kernel_dy + 1]
