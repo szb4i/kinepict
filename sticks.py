@@ -14,30 +14,14 @@ img = img[:,:,0]
 img = img/img.max()
 noise = np.random.normal(0, 0.1, img.shape)
 img = img+noise
-img[img<0] = 0
 img_height = img.shape[0]
 img_width = img.shape[1]
+img[img<0] = 0
 # img = read_dva('./data/PATIENT_28_1.XA.0001.0001.2020.05.26.07.40.37.199459.139512372.IMA')
 # img_height = img.shape[0]
 # img_width = img.shape[1]
 
-a = np.arange(1,7)
-b = np.array([
-  np.arange(11,20),
-  np.arange(21,30),
-  np.arange(31,40),
-  np.arange(41,50),
-  np.arange(51,60),
-  np.arange(61,70),
-  np.arange(71,80),
-  np.arange(81,90),
-  np.arange(91,100),
-])
-a_sliding_window = np.lib.stride_tricks.sliding_window_view(a, 3)
-b_sliding_window = np.lib.stride_tricks.sliding_window_view(b, (3,3))
-kernel = np.ones((3,3))
-
-img_sliding_window = np.lib.stride_tricks.sliding_window_view(img, (7,7))
+### pad image
 
 stick_0 = np.zeros((7,7))
 stick_0[:4,3:] = np.array([
@@ -98,11 +82,11 @@ for i in range(0,4):
   stick_4 = np.rot90(stick_4)
   stick_5 = np.rot90(stick_5)
 
-kernel_dx = 3
-kernel_dy = 3
-sigma = 1
-sigma_square = sigma**2
 ### method1: for loops only
+# sigma = 1
+# sigma_square = sigma**2
+# kernel_dx = 3
+# kernel_dy = 3
 # img_transformed = np.zeros((img_height, img_width))
 # for x in range(kernel_dy, img_height - kernel_dy):
 #   for y in range(kernel_dx, img_width - kernel_dx):
@@ -118,6 +102,10 @@ sigma_square = sigma**2
 #     output_pixel = output_pixel/(weight+0.00001)
 #     img_transformed[x,y] = output_pixel
 ### method2: x and y: for loop. inner part: vectors
+# sigma = 1
+# sigma_square = sigma**2
+# kernel_dx = 3
+# kernel_dy = 3
 # img_transformed = np.zeros((img_height, img_width))
 # for x in range(kernel_dy, img_height - kernel_dy):
 #   for y in range(kernel_dx, img_width - kernel_dx):
@@ -127,27 +115,59 @@ sigma_square = sigma**2
 #     g_all = np.exp(-variance_all/sigma_square)
 #     img_transformed[x,y] = (g_all*mean_all).sum()/(g_all.sum()+0.0001)
 ### method3: vectors only
-img_transformed = np.zeros((img_height - 2*kernel_dx, img_width - 2*kernel_dy))
-weight = 0
-for i in range(stick_full.shape[0]):
-  convolved_with_stick = img_sliding_window * stick_full[i]
-  ### 1
-  # mean = (1/4) * np.sum(convolved_with_stick, axis=(2,3))
-  # variance = (1/4) * np.sum(np.square(convolved_with_stick - mean[:, :, np.newaxis, np.newaxis]), axis=(2,3))
-  ### 2
-  mean = (1/4) * np.sum(convolved_with_stick, axis=(2,3))
-  mean_stick_product = mean[:,:,np.newaxis,np.newaxis]*stick_full[i]
-  variance = (1/4) * np.sum(np.square(convolved_with_stick - mean_stick_product), axis=(2,3))
-  g = np.exp(-variance/sigma_square)
-  weight += g
-  img_transformed += (g*mean)
-img_transformed = weight*img_transformed
+# pad image
+# img_padded = np.pad(img, pad_width=3, mode='edge')
+# img_padded_height = img_padded.shape[0]
+# img_padded_width = img_padded.shape[1]
+# img_padded_sliding_window = np.lib.stride_tricks.sliding_window_view(img_padded, (7,7))
+# img_transformed = np.zeros((img_height, img_width))
+# sigma = 1
+# sigma_square = sigma**2
+# smoothing_const = 0.9
+# weight = 0
+# for i in range(stick_full.shape[0]):
+#   convolved_with_stick = img_padded_sliding_window * stick_full[i]
+#   ### 1: wrong
+#   # mean = (1/4) * np.sum(convolved_with_stick, axis=(2,3))
+#   # variance = (1/4) * np.sum(np.square(convolved_with_stick - mean[:, :, np.newaxis, np.newaxis]), axis=(2,3))
+#   ### 2: correct
+#   mean = (1/4) * np.sum(convolved_with_stick, axis=(2,3))
+#   mean_stick_product = mean[:,:,np.newaxis,np.newaxis]*stick_full[i]
+#   variance = (1/4) * np.sum(np.square(convolved_with_stick - mean_stick_product), axis=(2,3))
+#   g = np.exp(-variance/sigma_square)
+#   weight += g
+#   img_transformed += (g*mean)
+# img_transformed = img_transformed/weight
+
+### method3: iterative
+img_0 = img
+sigma = 0.7
+sigma_square = 1300
+smoothing_const = 1
+for t in range(1,6):
+  img_padded = np.pad(img, pad_width=3, mode='edge')
+  img_padded_height = img_padded.shape[0]
+  img_padded_width = img_padded.shape[1]
+  img_padded_sliding_window = np.lib.stride_tricks.sliding_window_view(img_padded, (7,7))
+  img_transformed = np.zeros((img_height, img_width))
+  weight = 0
+  for i in range(stick_full.shape[0]):
+    convolved_with_stick = img_padded_sliding_window * stick_full[i]
+    mean = (1/4) * np.sum(convolved_with_stick, axis=(2,3))
+    mean_stick_product = mean[:,:,np.newaxis,np.newaxis]*stick_full[i]
+    variance = (1/4) * np.sum(np.square(convolved_with_stick - mean_stick_product), axis=(2,3))
+    # g = np.exp(-variance/sigma_square)
+    g = np.where((variance < sigma_square), (1/2 * np.square(1 - (variance/sigma_square))), 0)
+    weight += g
+    img_transformed += g*(mean - img)
+  img = img + (smoothing_const/weight)*img_transformed
+  print('#' + str(t) + ' iteration finished')
 
 end = time.time()
 print(end - start)
 
 plt.subplot(1,2,1)
-plt.imshow(img, cmap='gray')
+plt.imshow(img_0, cmap='gray')
 plt.subplot(1,2,2)
 plt.imshow(img_transformed, cmap='gray')
 plt.show()
