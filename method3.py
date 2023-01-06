@@ -10,7 +10,6 @@ from utils.kernels.sobel_kernels import get_sobel_x_kernel, get_sobel_y_kernel
 from utils.kernels.zeropad_kernel import get_zeropadded_kernel
 from utils.kernels.gaussian_kernel import get_gaussian_kernel
 from utils.file.dva_reader import read_dva
-from utils.file.dva_reader import read_dva
 from utils.img.scaler import scale
 
 ### read dva
@@ -71,17 +70,28 @@ for i, dir_name in enumerate(img_dir_list):
     u = np.fft.fftfreq(img.shape[1])
     vv, uu = np.meshgrid(v, u, indexing='ij')
 
-    filter_f_1 = 0.5 + 0.75*(1 - np.exp(-np.hypot(uu, vv)**2/(2*0.025**2)))
-    img_filtered_1 = np.fft.ifft2(np.fft.fft2(img) * filter_f_1).real
+    # filter_f_1 = 0.5 + 0.75*(1 - np.exp(-np.hypot(uu, vv)**2/(2*0.025**2)))
 
     # plt.imshow(np.fft.fftshift(filter_f_1), cmap='gray')  
+    filter_f_1 = (1 - np.exp(-np.hypot(uu, vv)**2/(2*0.5**2)))
+    filter_f_1[np.hypot(uu, vv) > 1] = 0
+    filter_f_1[np.hypot(uu, vv) < 1] = 1
+    filter_f_1[np.hypot(uu, vv) < 0.05] = 0
+    img_filtered_1 = np.fft.ifft2(np.fft.fft2(img) * filter_f_1).real
 
-    filter_f_2 = 0.5 + 0.75*(1 - np.exp(-np.hypot(uu, vv)**2/(2*0.05**2)))
+    filter_f_2 = (1 - np.exp(-np.hypot(uu, vv)**2/(2*0.1**2)))
     img_filtered_2 = np.fft.ifft2(np.fft.fft2(img) * filter_f_2).real
 
-    filter_f_3 = 0.5 + 0.75*(1 - np.exp(-np.hypot(uu, vv)**2/(2*0.075**2)))
+    filter_f_3 = (1 - np.exp(-np.hypot(uu, vv)**2/(2*0.25**2)))
     img_filtered_3 = np.fft.ifft2(np.fft.fft2(img) * filter_f_3).real
 
+    filter_f_4 = (1 - np.exp(-np.hypot(uu, vv)**2/(2*0.004**2)))
+    img_filtered_4 = np.fft.ifft2(np.fft.fft2(img) * filter_f_4).real
+
+    # filter_f_5 = 1 + 30*(1 - np.exp(-np.hypot(uu, vv)**2/(2*0.5**2)))
+    # img_filtered_5 = np.fft.ifft2(np.fft.fft2(img) * filter_f_5).real
+
+    print('showing: ' + inner_img_dir + '/' + img_file_name)
     plt.figure(figsize=(20,14))
     plt.suptitle(img_file_name, size=16)
     plt.subplot(2,2,1)
@@ -93,8 +103,8 @@ for i, dir_name in enumerate(img_dir_list):
     plt.subplot(2,2,4)
     plt.imshow(img_filtered_3, cmap='gray')
     plt.show()
-    print('showing: img_file_name')
     # np.savetxt('./outputs/method3_img' + '.txt', img, delimiter='\t')
     # np.savetxt('./outputs/method3_1' + '.txt', img_filtered_1, delimiter='\t')
     # np.savetxt('./outputs/method3_2' + '.txt', img_filtered_2, delimiter='\t')
     # np.savetxt('./outputs/method3_3' + '.txt', img_filtered_3, delimiter='\t')
+    # np.savetxt('./outputs/method3_4' + '.txt', img_filtered_4, delimiter='\t')
