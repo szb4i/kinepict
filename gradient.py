@@ -48,4 +48,4 @@ plt.imshow(img_final, cmap='gray')
 plt.show()
 
 # np.savetxt('./outputs/gradient/img.txt', img, delimiter='\t')
-# np.savetxt('./outputs/bandpass/img_filtered.txt', img_final, delimiter='\t')
+# np.savetxt('./outputs/gradient/img_filtered.txt', img_final, delimiter='\t')
