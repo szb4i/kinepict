@@ -48,7 +48,7 @@ plt.subplot(1,3,2)
 plt.imshow(img_wl ** 0.3 , cmap='gray')
 plt.gca().set_title('wl')
 plt.subplot(1,3,3)
-plt.imshow(img_range ** 0.7, cmap='gray')
+plt.imshow(img_range ** 0.5, cmap='gray')
 plt.gca().set_title('statistical range')
 plt.show()
 
