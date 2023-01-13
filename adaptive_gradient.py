@@ -35,11 +35,10 @@ gy = convolve2d(img, kernel_sobel_y, mode='same', boundary = 'symm', fillvalue=0
 img_sobel = np.hypot(gx, gy)
 
 ### range
-img_blured = gaussian_filter(img, sigma=3)
-img_sliding_window = np.lib.stride_tricks.sliding_window_view(img_blured, (3,3))
+# img_blured = gaussian_filter(img, sigma=3)
+img_sliding_window = np.lib.stride_tricks.sliding_window_view(img, (3,3))
 img_sliding_window = np.reshape(img_sliding_window, (img_sliding_window.shape[0], img_sliding_window.shape[1], 9))
 img_range = np.amax(img_sliding_window, axis=2) - np.amin(img_sliding_window, axis=2)
-plt.imshow(img_range * 0.7, cmap='gray')
 
 plt.figure(figsize=(12,7))
 plt.subplot(1,3,1)
@@ -49,7 +48,7 @@ plt.subplot(1,3,2)
 plt.imshow(img_wl ** 0.3 , cmap='gray')
 plt.gca().set_title('wl')
 plt.subplot(1,3,3)
-plt.imshow(img_range * 0.7, cmap='gray')
+plt.imshow(img_range ** 0.7, cmap='gray')
 plt.gca().set_title('statistical range')
 plt.show()
 
