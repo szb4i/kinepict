@@ -28,13 +28,6 @@ W = 0.1
 filter_f = np.exp(-(np.hypot(uu, vv) - C0)**2/(W**2))
 img_filtered = np.fft.ifft2(img_f * filter_f).real
 
-### gauss diff
-sigma_1 = 0.19
-gauss_1 = np.exp(-(np.hypot(uu, vv))**2/(2*sigma_1**2))
-sigma_2 = 0.2
-gauss_2 = np.exp(-(np.hypot(uu, vv))**2/(2*sigma_2**2))
-gauss_diff = gauss_2 - gauss_1
-
 ### plotting filters
 # plt.figure(figsize=(12,7))
 # plt.subplot(2,1,1)
@@ -46,7 +39,7 @@ gauss_diff = gauss_2 - gauss_1
 # plt.show()
 
 ### high-pass emphasis
-k_factor = 80
+k_factor = 3
 filter_emphasis_f = 1 + k_factor*(filter_f)
 img_filtered_emphasis = np.fft.ifft2(img_f*filter_emphasis_f).real
 plt.figure(figsize=(12,7))
@@ -55,7 +48,7 @@ plt.imshow(img, cmap='gray')
 plt.gca().set_title('original')
 plt.subplot(1,2,2)
 plt.imshow(img_filtered_emphasis, cmap='gray')
-plt.gca().set_title('bandpass')
+plt.gca().set_title('img_filtered_emphasis')
 plt.show()
 
 # np.savetxt('./outputs/bandpass_modified_gauss/img_filtered.txt', img_filtered, delimiter='\t')
