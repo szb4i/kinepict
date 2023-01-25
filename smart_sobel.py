@@ -117,6 +117,7 @@ img_gradient_direction_gradient = np.hypot(img_gradient_direction_gradient_x, im
 # inversion: where directional change is small -> veins; where directional change is big -> noise. inverting it to have strong signal where veins are
 img_gradient_direction_gradient_inverted = np.log(1/(img_gradient_direction_gradient+0.0001))
 img_gradient_direction_gradient_inverted = scale(img_gradient_direction_gradient_inverted)
+img_method2 = (1+3*img_gradient_direction_gradient_inverted)*img_clahe
 
 print('done')
 
@@ -128,7 +129,7 @@ plt.subplot(1,3,2)
 plt.imshow(img_clahe, cmap='gray')
 plt.gca().set_title('clahe')
 plt.subplot(1,3,3)
-plt.imshow((1+3*img_gradient_direction_gradient_inverted)*img_clahe, cmap='gray')
+plt.imshow(img_method2, cmap='gray')
 plt.gca().set_title('gradient direction enhanced')
 plt.show()
 
