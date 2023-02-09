@@ -73,23 +73,40 @@ img_dir = '/data/23_kep_test/'
 #     plt.show()
 
 ### run on stack
-current_path = (os.path.abspath(os.path.dirname(__file__))).replace("\\","/")
-img_dir_list = os.listdir(current_path + img_dir)
-for i, dir_name in enumerate(img_dir_list):
-  inner_img_dir = current_path + img_dir + dir_name
-  image_list = os.listdir(inner_img_dir)
-  for j, img_file_name in enumerate(image_list):
-    if '.txt' == img_file_name[-4:]:
-      continue
-    img_stack = read_dicom(inner_img_dir + '/' + img_file_name)
-    img_stack_filtered = apply_pca_method(img_stack)
-    plt.figure(figsize=(12,7))
-    plt.suptitle(img_file_name, size=16)
-    plt.subplot(1,2,1)
-    plt.imshow(np.std(img_stack, axis=2, ddof=1), cmap='gray')
-    plt.gca().set_title('dva')
-    plt.subplot(1,2,2)
-    plt.imshow(np.std(img_stack_filtered, axis=2, ddof=1), cmap='gray')
-    plt.gca().set_title('dva_filtered')
-    plt.show()
+# current_path = (os.path.abspath(os.path.dirname(__file__))).replace("\\","/")
+# img_dir_list = os.listdir(current_path + img_dir)
+# for i, dir_name in enumerate(img_dir_list):
+#   inner_img_dir = current_path + img_dir + dir_name
+#   image_list = os.listdir(inner_img_dir)
+#   for j, img_file_name in enumerate(image_list):
+#     if '.txt' == img_file_name[-4:]:
+#       continue
+#     img_stack = read_dicom(inner_img_dir + '/' + img_file_name)
+#     img_stack_filtered = apply_pca_method(img_stack)
+#     plt.figure(figsize=(12,7))
+#     plt.suptitle(img_file_name, size=16)
+#     plt.subplot(1,2,1)
+#     plt.imshow(np.std(img_stack, axis=2, ddof=1), cmap='gray')
+#     plt.gca().set_title('dva')
+#     plt.subplot(1,2,2)
+#     plt.imshow(np.std(img_stack_filtered, axis=2, ddof=1), cmap='gray')
+#     plt.gca().set_title('dva_filtered')
+#     plt.show()
+
+img = read_dicom((os.path.abspath(os.path.dirname(__file__))).replace("\\","/") + img_dir + 'Vena I/1_1_N')
+plt.figure(figsize=(12,7))
+plt.subplot(1,4,1)
+plt.imshow(img[:,:,0], cmap='gray')
+plt.gca().set_title('Frame 1')
+plt.subplot(1,4,2)
+plt.imshow(img[:,:,24], cmap='gray')
+plt.gca().set_title('Frame 25')
+plt.subplot(1,4,3)
+plt.imshow(img[:,:,49], cmap='gray')
+plt.gca().set_title('Frame 50')
+plt.subplot(1,4,4)
+plt.imshow(img[:,:,-1] - img[:,:,0] , cmap='gray')
+plt.gca().set_title('DSA')
+plt.tight_layout()
+plt.show()
 

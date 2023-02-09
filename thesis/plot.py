@@ -1,0 +1,148 @@
+import matplotlib.pyplot as plt
+import numpy as np
+import cv2
+
+# setting path
+import sys
+sys.path.append('../')
+from utils.file.dicom_reader import read_dicom
+
+### power law
+# img = plt.imread('./data/tree.jpg')[:,:,0]
+# plt.figure(figsize=(12,7))
+# plt.subplot(2,4,1)
+# plt.imshow(img**0.2, cmap='gray')
+# plt.axis("off")
+# plt.gca().set_title('$\gamma=0.2$', fontdict={'fontsize':16})
+# plt.subplot(2,4,2)
+# plt.imshow(img**0.4, cmap='gray')
+# plt.axis("off")
+# plt.gca().set_title('$\gamma=0.4$', fontdict={'fontsize':16})
+# plt.subplot(2,4,3)
+# plt.imshow(img**0.6, cmap='gray')
+# plt.axis("off")
+# plt.gca().set_title('$\gamma=0.6$', fontdict={'fontsize':16})
+# plt.subplot(2,4,4)
+# plt.imshow(img**0.8, cmap='gray')
+# plt.axis("off")
+# plt.gca().set_title('$\gamma=0.8$', fontdict={'fontsize':16})
+# plt.subplot(2,4,5)
+# plt.imshow(img**1.2, cmap='gray')
+# plt.axis("off")
+# plt.gca().set_title('$\gamma=1.2$', fontdict={'fontsize':16})
+# plt.subplot(2,4,6)
+# plt.imshow(img**1.4, cmap='gray')
+# plt.axis("off")
+# plt.gca().set_title('$\gamma=1.4$', fontdict={'fontsize':16})
+# plt.subplot(2,4,7)
+# plt.imshow(img**1.6, cmap='gray')
+# plt.axis("off")
+# plt.gca().set_title('$\gamma=1.6$', fontdict={'fontsize':16})
+# plt.subplot(2,4,8)
+# plt.imshow(img**1.8, cmap='gray')
+# plt.axis("off")
+# plt.gca().set_title('$\gamma=1.8$', fontdict={'fontsize':16})
+# plt.tight_layout()
+# plt.show()
+
+### hist eq
+# img = cv2.imread('./data/unequalized_image.jpg')
+# hist,bins = np.histogram(img.flatten(),256,[0,256])
+
+# cdf = hist.cumsum()
+# cdf_normalized = cdf * hist.max()/ cdf.max()
+
+# cdf_m = np.ma.masked_equal(cdf,0)
+# cdf_m = (cdf_m - cdf_m.min())*255/(cdf_m.max()-cdf_m.min())
+# cdf = np.ma.filled(cdf_m,0).astype('uint8')
+
+# img2 = cdf[img]
+# hist,bins = np.histogram(img2.flatten(),256,[0,256])
+# cdf2 = hist.cumsum()
+# cdf_normalized2 = cdf2 * hist.max()/ cdf2.max()
+
+# plt.figure(figsize=(12,4))
+# plt.subplot(1,2,1)
+# plt.imshow(img, cmap='gray')
+# plt.axis("off")
+# # plt.gca().set_title('unequalized image', fontdict={'fontsize':12})
+# plt.subplot(1,2,2)
+# plt.plot(cdf_normalized, color = 'b')
+# plt.hist(img.flatten(),256,[0,256], color = 'r')
+# plt.ticklabel_format(axis='y', style='sci', scilimits=(4,4))
+# plt.xlim([0,256])
+# plt.xlabel('grayscale value')
+# plt.ylabel('pixel count')
+# plt.legend(('CDF','histogram'), loc = 'upper left')
+# # plt.gca().set_title('unequalized histogram', fontdict={'fontsize':12})
+# plt.tight_layout()
+# plt.show()
+
+# plt.figure(figsize=(12,4))
+# plt.subplot(1,2,1)
+# plt.imshow(img2, cmap='gray')
+# plt.axis("off")
+# # plt.gca().set_title('equalized image', fontdict={'fontsize':12})
+# plt.subplot(1,2,2)
+# plt.plot(cdf_normalized2, color = 'b')
+# plt.hist(img2.flatten(),256,[0,256], color = 'r')
+# plt.ticklabel_format(axis='y', style='sci', scilimits=(4,4))
+# plt.xlim([0,256])
+# plt.xlabel('grayscale value')
+# plt.ylabel('pixel count')
+# plt.legend(('CDF','histogram'), loc = 'upper left')
+# # plt.gca().set_title('equalized histogram', fontdict={'fontsize':12})
+# plt.tight_layout()
+# plt.show()
+
+### global hist eq
+# img_before = plt.imread('./data/before-global-histeq.png')[:,:,0]
+# img_after = plt.imread('./data/after-global-histeq.png')[:,:,0]
+# plt.figure(figsize=(12,7))
+# plt.subplot(1,2,1)
+# plt.imshow(img_before, cmap='gray')
+# plt.axis("off")
+# plt.gca().set_title('Original image', fontdict={'fontsize':20})
+# plt.subplot(1,2,2)
+# plt.imshow(img_after, cmap='gray')
+# plt.axis("off")
+# plt.gca().set_title('After global histogram equalization', fontdict={'fontsize':20})
+# plt.tight_layout()
+# plt.show()
+
+### global hist eq
+# img_before = plt.imread('./data/before-global-histeq.png')[:,:,0]
+# img_after = plt.imread('./data/after-clahe.jpg')[:,:,0]
+# plt.figure(figsize=(12,7))
+# plt.subplot(1,2,1)
+# plt.imshow(img_before, cmap='gray')
+# plt.axis("off")
+# plt.gca().set_title('Original image', fontdict={'fontsize':20})
+# plt.subplot(1,2,2)
+# plt.imshow(img_after, cmap='gray')
+# plt.axis("off")
+# plt.gca().set_title('After CLAHE', fontdict={'fontsize':20})
+# plt.tight_layout()
+# plt.show()
+
+### angio frames
+img_stack = read_dicom('../data/23_kep_test/Carotis 100%/CAR17IM0')
+plt.figure(figsize=(12,7))
+plt.subplot(1,4,1)
+plt.imshow(img_stack[:,:,4] - img_stack[:,:,0], cmap='gray')
+plt.axis("off")
+plt.gca().set_title('Frame 5')
+plt.subplot(1,4,2)
+plt.imshow(img_stack[:,:,7] - img_stack[:,:,0], cmap='gray')
+plt.axis("off")
+plt.gca().set_title('Frame 8')
+plt.subplot(1,4,3)
+plt.imshow(img_stack[:,:,10] - img_stack[:,:,0], cmap='gray')
+plt.axis("off")
+plt.gca().set_title('Frame 11')
+plt.subplot(1,4,4)
+plt.imshow(np.mean(img_stack, axis=2) - img_stack[:,:,0], cmap='gray')
+plt.axis("off")
+plt.gca().set_title('DSA')
+plt.tight_layout()
+plt.show()
