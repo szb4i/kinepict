@@ -31,14 +31,14 @@ from utils.kernels.kirsch_kernels import *
 # img = read_dva('./data/23_kep_test/Prostate/US_9660096_24_1.IMA')
 # img = read_dva('./data/23_kep_test/X-ray 70%/hasE.IMA')
 img = read_dva('./data/23_kep_test/Prostate/US_9660096_24_1.IMA')
+img = scale(img)
 # img = plt.imread('./data/tree.jpg')[:,:,0]
 # img = np.loadtxt('./outputs/smart_sobel/test_pattern_circle.txt')
 # img = np.loadtxt('./outputs/smart_sobel/test_pattern_gauss.txt')
 # img = np.loadtxt('./outputs/smart_sobel/test_pattern_circle_gauss.txt')
 
 ### clahe
-img = scale(img)
-img_clahe = exposure.equalize_adapthist(img,kernel_size=[50,50],clip_limit=0.00015,nbins=26200)
+# img = exposure.equalize_adapthist(img,kernel_size=[50,50],clip_limit=0.00015,nbins=26200)
 
 
 ### method1: sand glass shape
@@ -106,8 +106,8 @@ img_clahe = exposure.equalize_adapthist(img,kernel_size=[50,50],clip_limit=0.000
 # gradient direction, magnitude
 kernel_sobel_x = get_sobel_x_kernel()
 kernel_sobel_y = get_sobel_y_kernel()
-img_gradient_x = convolve2d(img_clahe, kernel_sobel_x, mode='same', boundary = 'symm', fillvalue=0)
-img_gradient_y = convolve2d(img_clahe, kernel_sobel_y, mode='same', boundary = 'symm', fillvalue=0)
+img_gradient_x = convolve2d(img, kernel_sobel_x, mode='same', boundary = 'symm', fillvalue=0)
+img_gradient_y = convolve2d(img, kernel_sobel_y, mode='same', boundary = 'symm', fillvalue=0)
 img_gradient_direction = np.arctan2(img_gradient_y, img_gradient_x)
 img_gradient_magnitude = np.hypot(img_gradient_x, img_gradient_y)
 # gradient of gradient direction
@@ -117,20 +117,23 @@ img_gradient_direction_gradient = np.hypot(img_gradient_direction_gradient_x, im
 # inversion: where directional change is small -> veins; where directional change is big -> noise. inverting it to have strong signal where veins are
 img_gradient_direction_gradient_inverted = np.log(1/(img_gradient_direction_gradient+0.0001))
 img_gradient_direction_gradient_inverted = scale(img_gradient_direction_gradient_inverted)
-img_method2 = (1+3*img_gradient_direction_gradient_inverted)*img_clahe
+
+### img_sum_1: simple sum
+img_sum_1 = scale(img + img_gradient_direction_gradient_inverted)
+### img_sum_2: clahe on original image and add it to directional image
+img_sum_2 = scale(exposure.equalize_adapthist(img,kernel_size=[50,50],clip_limit=0.00015,nbins=26200) + img_gradient_direction_gradient_inverted)
+### img_sum_3 sum images and apply clahe on sum
+img_sum_3 = exposure.equalize_adapthist(scale(img + img_gradient_direction_gradient_inverted),kernel_size=[100,100],clip_limit=0.00015,nbins=26200)
 
 print('done')
 
 plt.figure(figsize=(12,7))
 plt.subplot(1,3,1)
-plt.imshow(img, cmap='gray')
-plt.gca().set_title('img')
+plt.imshow(img_sum_1, cmap='gray')
 plt.subplot(1,3,2)
-plt.imshow(img_clahe, cmap='gray')
-plt.gca().set_title('clahe')
+plt.imshow(img_sum_2, cmap='gray')
 plt.subplot(1,3,3)
-plt.imshow(img_method2, cmap='gray')
-plt.gca().set_title('gradient direction enhanced')
+plt.imshow(img_sum_3, cmap='gray')
 plt.show()
 
 # np.savetxt('./outputs/smart_sobel/img_sum.txt', img_sum, delimiter='\t')
