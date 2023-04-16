@@ -1,18 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from scipy.signal import convolve2d
-from scipy import ndimage, misc
-from skimage import exposure
-import os
-from skimage.filters import difference_of_gaussians, window
-
-from utils.patterns.rectangle import get_rectangle
-from utils.kernels.sobel_kernels import get_sobel_x_kernel, get_sobel_y_kernel
-from utils.kernels.zeropad_kernel import get_zeropadded_kernel
-from utils.kernels.laplacian_kernel import get_laplacian_kernel
-from utils.kernels.gaussian_kernel import get_gaussian_kernel
 from utils.file.dva_reader import read_dva
-from utils.img.scaler import scale
 
 ### read dva
 # img = read_dva('./data/23_kep_test/Carotis 100%/CAR17IM0')
@@ -23,32 +11,55 @@ img_f = np.fft.fft2(img)
 v = np.fft.fftfreq(img.shape[0])
 u = np.fft.fftfreq(img.shape[1])
 vv, uu = np.meshgrid(v, u, indexing='ij')
-C0 = 0.225
+C0 = 0.25
 W = 0.1
+# img_filtered_ringing
+# W = 0.075
 filter_f = np.exp(-(np.hypot(uu, vv) - C0)**2/(W**2))
 img_filtered = np.fft.ifft2(img_f * filter_f).real
 
-### plotting filters
-# plt.figure(figsize=(12,7))
-# plt.subplot(2,1,1)
-# plt.imshow(np.fft.ifftshift(filter_f), cmap='gray')
-# plt.gca().set_title('bandpass')
-# plt.subplot(2,1,2)
-# plt.imshow(img_filtered, cmap='gray')
-# plt.gca().set_title('gauss diff')
-# plt.show()
+### plotting filter
+plt.figure(figsize=(12,7))
+plt.imshow(np.fft.ifftshift(filter_f), cmap='gray')
+plt.gca().set_title('bandpass')
+plt.show()
+
+### plotting filtered image
+plt.figure(figsize=(12,7))
+plt.subplot(1,2,1)
+plt.imshow(img, cmap='gray')
+plt.gca().set_title('img')
+plt.subplot(1,2,2)
+plt.imshow(img_filtered, cmap='gray')
+plt.gca().set_title('img_filtered')
+plt.show()
 
 ### high-pass emphasis
-k_factor = 3
-filter_emphasis_f = 1 + k_factor*(filter_f)
-img_filtered_emphasis = np.fft.ifft2(img_f*filter_emphasis_f).real
+k_factor = 5
+filter_emphasised_f = 1 + k_factor*(filter_f)
+img_filtered_emphasised = np.fft.ifft2(img_f*filter_emphasised_f).real
 plt.figure(figsize=(12,7))
 plt.subplot(1,2,1)
 plt.imshow(img, cmap='gray')
 plt.gca().set_title('original')
 plt.subplot(1,2,2)
-plt.imshow(img_filtered_emphasis, cmap='gray')
-plt.gca().set_title('img_filtered_emphasis')
+plt.imshow(img_filtered_emphasised, cmap='gray')
+plt.gca().set_title('img_filtered_emphasised')
 plt.show()
 
-# np.savetxt('./outputs/bandpass_modified_gauss/img_filtered.txt', img_filtered, delimiter='\t')
+### summary plot
+plt.figure(figsize=(12,7))
+plt.suptitle("bandpass_gauss_modified", size=14)
+plt.subplot(1,3,1)
+plt.imshow(img, cmap='gray')
+plt.gca().set_title('img')
+plt.subplot(1,3,2)
+plt.imshow(img_filtered, cmap='gray')
+plt.gca().set_title('img_filtered')
+plt.subplot(1,3,3)
+plt.imshow(img_filtered_emphasised, cmap='gray')
+plt.gca().set_title('img_filtered_emphasised')
+plt.show()
+
+### save images as text
+# np.savetxt('./outputs/bandpass_gauss_modified/img_filtered.txt', img_filtered, delimiter='\t')
