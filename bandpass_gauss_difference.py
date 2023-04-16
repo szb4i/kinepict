@@ -53,6 +53,7 @@ plt.show()
 
 ### summary plot
 plt.figure(figsize=(12,7))
+plt.suptitle("bandpass_gauss_difference", size=14)
 plt.subplot(1,3,1)
 plt.imshow(img, cmap='gray')
 plt.gca().set_title('img')
@@ -65,5 +66,5 @@ plt.gca().set_title('img_filtered_emphasised')
 plt.show()
 
 ### save images as text
-# np.savetxt('./outputs/bandpass/img.txt', img, delimiter='\t')
-# np.savetxt('./outputs/bandpass/img_filtered_4.txt', img_filtered_4, delimiter='\t')
+# np.savetxt('./outputs/bandpass_gauss_difference/img.txt', img, delimiter='\t')
+# np.savetxt('./outputs/bandpass_gauss_difference/img_filtered_4.txt', img_filtered_4, delimiter='\t')
