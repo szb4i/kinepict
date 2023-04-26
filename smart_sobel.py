@@ -14,6 +14,7 @@ from utils.file.dva_reader import read_dva
 from utils.img.scaler import scale
 from skimage import exposure
 from utils.kernels.kirsch_kernels import *
+from utils.fusion.wavelet_fusion import fuse
 
 ### make patterns
 # v = np.fft.fftfreq(400)
@@ -109,7 +110,7 @@ kernel_sobel_y = get_sobel_y_kernel()
 img_gradient_x = convolve2d(img, kernel_sobel_x, mode='same', boundary = 'symm', fillvalue=0)
 img_gradient_y = convolve2d(img, kernel_sobel_y, mode='same', boundary = 'symm', fillvalue=0)
 img_gradient_direction = np.arctan2(img_gradient_y, img_gradient_x)
-img_gradient_magnitude = np.hypot(img_gradient_x, img_gradient_y)
+img_gradient_magnitude = scale(np.hypot(img_gradient_x, img_gradient_y))
 # gradient of gradient direction
 img_gradient_direction_gradient_x = convolve2d(img_gradient_direction, kernel_sobel_x, mode='same', boundary = 'symm', fillvalue=0)
 img_gradient_direction_gradient_y = convolve2d(img_gradient_direction, kernel_sobel_y, mode='same', boundary = 'symm', fillvalue=0)
@@ -118,22 +119,63 @@ img_gradient_direction_gradient = np.hypot(img_gradient_direction_gradient_x, im
 img_gradient_direction_gradient_inverted = np.log(1/(img_gradient_direction_gradient+0.0001))
 img_gradient_direction_gradient_inverted = scale(img_gradient_direction_gradient_inverted)
 
-### img_sum_1: simple sum
-img_sum_1 = scale(img + img_gradient_direction_gradient_inverted)
-### img_sum_2: clahe on original image and add it to directional image
-img_sum_2 = scale(exposure.equalize_adapthist(img,kernel_size=[50,50],clip_limit=0.00015,nbins=26200) + img_gradient_direction_gradient_inverted)
-### img_sum_3 sum images and apply clahe on sum
-img_sum_3 = exposure.equalize_adapthist(scale(img + img_gradient_direction_gradient_inverted),kernel_size=[100,100],clip_limit=0.00015,nbins=26200)
+### fuse
+img_fused = fuse(img_gradient_magnitude, img_gradient_direction_gradient_inverted, fusion_method='mean')
 
-print('done')
-
+### plot
 plt.figure(figsize=(12,7))
 plt.subplot(1,3,1)
-plt.imshow(img_sum_1, cmap='gray')
+plt.imshow(img_gradient_magnitude, cmap='gray')
 plt.subplot(1,3,2)
-plt.imshow(img_sum_2, cmap='gray')
+plt.imshow(img_gradient_direction_gradient_inverted, cmap='gray')
 plt.subplot(1,3,3)
-plt.imshow(img_sum_3, cmap='gray')
+plt.imshow(img_fused, cmap='gray')
 plt.show()
 
 # np.savetxt('./outputs/smart_sobel/img_sum.txt', img_sum, delimiter='\t')
+
+# ### img_sum_1: simple sum
+# img_sum_1 = scale(img + img_gradient_direction_gradient_inverted)
+# ### img_sum_2: clahe on original image and add it to directional image
+# img_sum_2 = scale(exposure.equalize_adapthist(img,kernel_size=[50,50],clip_limit=0.00015,nbins=26200) + img_gradient_direction_gradient_inverted)
+# ### img_sum_3 sum images and apply clahe on sum
+# img_sum_3 = exposure.equalize_adapthist(scale(img + img_gradient_direction_gradient_inverted),kernel_size=[100,100],clip_limit=0.00015,nbins=26200)
+
+# ### snr fusion: works but very poor result
+# img_to_analyze = img_gradient_direction_gradient_inverted
+# roi_signal_in_vein_1 = img_to_analyze[749:757, 438:446]
+# roi_signal_out_vein_1 = img_to_analyze[759:767, 423:431]
+# roi_signal_in_vein_2 = img_to_analyze[645:652, 695:702]
+# roi_signal_out_vein_2 = img_to_analyze[644:651, 707:714]
+# roi_signal_in_vein_3 = img_to_analyze[910:916, 289:295]
+# roi_signal_out_vein_3 = img_to_analyze[904:910, 299:305]
+# signal_1 = np.mean(roi_signal_in_vein_1) - np.mean(roi_signal_out_vein_1)
+# signal_2 = np.mean(roi_signal_in_vein_2) - np.mean(roi_signal_out_vein_2)
+# signal_3 = np.mean(roi_signal_in_vein_3) - np.mean(roi_signal_out_vein_3)
+# noise_1 = np.std(roi_signal_out_vein_1)
+# noise_2 = np.std(roi_signal_out_vein_2)
+# noise_3 = np.std(roi_signal_out_vein_3)
+# snr_1_directional = signal_1/noise_1
+# snr_2_directional = signal_2/noise_2
+# snr_3_directional = signal_3/noise_3
+# snr_directional_avg = (snr_1_directional + snr_2_directional + snr_3_directional)/3
+# ### snr magnitude
+# img_to_analyze = img_gradient_magnitude
+# roi_signal_in_vein_1 = img_to_analyze[749:757, 438:446]
+# roi_signal_out_vein_1 = img_to_analyze[759:767, 423:431]
+# roi_signal_in_vein_2 = img_to_analyze[645:652, 695:702]
+# roi_signal_out_vein_2 = img_to_analyze[644:651, 707:714]
+# roi_signal_in_vein_3 = img_to_analyze[910:916, 289:295]
+# roi_signal_out_vein_3 = img_to_analyze[904:910, 299:305]
+# signal_1 = np.mean(roi_signal_in_vein_1) - np.mean(roi_signal_out_vein_1)
+# signal_2 = np.mean(roi_signal_in_vein_2) - np.mean(roi_signal_out_vein_2)
+# signal_3 = np.mean(roi_signal_in_vein_3) - np.mean(roi_signal_out_vein_3)
+# noise_1 = np.std(roi_signal_out_vein_1)
+# noise_2 = np.std(roi_signal_out_vein_2)
+# noise_3 = np.std(roi_signal_out_vein_3)
+# snr_1_magnitude = signal_1/noise_1
+# snr_2_magnitude = signal_2/noise_2
+# snr_3_magnitude = signal_3/noise_3
+# snr_magnitude_avg = (snr_1_magnitude + snr_2_magnitude + snr_3_magnitude)/3
+# ### add images with weigths:
+# img_sum_weighted = (snr_directional_avg/(snr_directional_avg+snr_magnitude_avg))*img_gradient_direction_gradient_inverted + (snr_magnitude_avg/(snr_directional_avg+snr_magnitude_avg))*img_gradient_magnitude
