@@ -15,6 +15,7 @@ from utils.img.scaler import scale
 from skimage import exposure
 from utils.kernels.kirsch_kernels import *
 from utils.fusion.wavelet_fusion import fuse
+from skimage import restoration
 
 ### make patterns
 # v = np.fft.fftfreq(400)
@@ -114,22 +115,21 @@ img_gradient_magnitude = scale(np.hypot(img_gradient_x, img_gradient_y))
 # gradient of gradient direction
 img_gradient_direction_gradient_x = convolve2d(img_gradient_direction, kernel_sobel_x, mode='same', boundary = 'symm', fillvalue=0)
 img_gradient_direction_gradient_y = convolve2d(img_gradient_direction, kernel_sobel_y, mode='same', boundary = 'symm', fillvalue=0)
-img_gradient_direction_gradient = np.hypot(img_gradient_direction_gradient_x, img_gradient_direction_gradient_y)
+img_gradient_direction_gradient_mangitude = np.hypot(img_gradient_direction_gradient_x, img_gradient_direction_gradient_y)
 # inversion: where directional change is small -> veins; where directional change is big -> noise. inverting it to have strong signal where veins are
-img_gradient_direction_gradient_inverted = np.log(1/(img_gradient_direction_gradient+0.0001))
-img_gradient_direction_gradient_inverted = scale(img_gradient_direction_gradient_inverted)
+img_gradient_direction_gradient_mangitude_inverted = np.log(1/(img_gradient_direction_gradient_mangitude+0.0001))
+img_gradient_direction_gradient_mangitude_inverted = scale(img_gradient_direction_gradient_mangitude_inverted)
 
 ### fuse
-img_fused = fuse(img_gradient_magnitude, img_gradient_direction_gradient_inverted, fusion_method='mean')
+# img_fused = fuse(img_gradient_magnitude, img_gradient_direction_gradient_inverted, fusion_method='mean')
+img_sum = 2*img + (2*img_gradient_magnitude + img_gradient_direction_gradient_mangitude_inverted)
 
 ### plot
 plt.figure(figsize=(12,7))
-plt.subplot(1,3,1)
-plt.imshow(img_gradient_magnitude, cmap='gray')
-plt.subplot(1,3,2)
-plt.imshow(img_gradient_direction_gradient_inverted, cmap='gray')
-plt.subplot(1,3,3)
-plt.imshow(img_fused, cmap='gray')
+plt.subplot(1,2,1)
+plt.imshow(img, cmap='gray')
+plt.subplot(1,2,2)
+plt.imshow(img_sum, cmap='gray')
 plt.show()
 
 # np.savetxt('./outputs/smart_sobel/img_sum.txt', img_sum, delimiter='\t')
@@ -141,7 +141,7 @@ plt.show()
 # ### img_sum_3 sum images and apply clahe on sum
 # img_sum_3 = exposure.equalize_adapthist(scale(img + img_gradient_direction_gradient_inverted),kernel_size=[100,100],clip_limit=0.00015,nbins=26200)
 
-# ### snr fusion: works but very poor result
+# # ### snr fusion: works but very poor result
 # img_to_analyze = img_gradient_direction_gradient_inverted
 # roi_signal_in_vein_1 = img_to_analyze[749:757, 438:446]
 # roi_signal_out_vein_1 = img_to_analyze[759:767, 423:431]

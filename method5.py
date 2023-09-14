@@ -1,7 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.signal import convolve2d
-import cv2 as cv
 from scipy import ndimage, misc
 from scipy.ndimage import gaussian_filter
 
@@ -30,10 +29,10 @@ for x in range(kernel_dy, img_height - kernel_dy):
   for y in range(kernel_dx, img_width - kernel_dx):
     partition = img_blured[x - kernel_dx: x + kernel_dx + 1, y - kernel_dy: y + kernel_dy + 1]
     img_edge[x,y] = partition.max() - partition.min()
-# plt.figure(figsize=(12,7))
-# plt.subplot(1,2,1)
-# plt.imshow(img, cmap='gray')
-# plt.subplot(1,2,2)
-# plt.imshow(img_edge, cmap='gray')
-# plt.show()
-np.savetxt('./outputs/method5' + '.txt', img_edge, delimiter='\t')
+plt.figure(figsize=(12,7))
+plt.subplot(1,2,1)
+plt.imshow(img, cmap='gray')
+plt.subplot(1,2,2)
+plt.imshow(img_edge, cmap='gray')
+plt.show()
+# np.savetxt('./outputs/method5' + '.txt', img_edge, delimiter='\t')

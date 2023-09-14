@@ -29,7 +29,7 @@ kernel = get_gaussian_kernel()
 
 ### method: numpy
 img_sliding_window = np.lib.stride_tricks.sliding_window_view(img, (3,3))
-# img_convolved = np.sum((img_sliding_window * kernel), axis=(2,3))
+img_convolved = np.sum((img_sliding_window * kernel), axis=(2,3))
 ### method: scipy
 # img_convolved = convolve2d(img, kernel, mode='same')
 ### method: for loop

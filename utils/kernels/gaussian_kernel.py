@@ -7,4 +7,3 @@ def get_gaussian_kernel(l=3, sig=1., normalize=True):
     if normalize:
         return kernel / np.sum(kernel)
     return kernel
-        

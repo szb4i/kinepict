@@ -42,27 +42,13 @@ plt.show()
 k_factor = 100
 filter_emphasised_f = 1 + k_factor*(gauss_diff)
 img_filtered_emphasised = np.fft.ifft2(img_f*filter_emphasised_f).real
-plt.figure(figsize=(12,7))
-plt.subplot(1,2,1)
-plt.imshow(img_filtered, cmap='gray')
-plt.gca().set_title('original')
-plt.subplot(1,2,2)
-plt.imshow(img_filtered_emphasised, cmap='gray')
-plt.gca().set_title('img_filtered_emphasised')
-plt.show()
 
 ### summary plot
 plt.figure(figsize=(12,7))
-plt.suptitle("bandpass_gauss_difference", size=14)
-plt.subplot(1,3,1)
+plt.subplot(1,2,1)
 plt.imshow(img, cmap='gray')
-plt.gca().set_title('img')
-plt.subplot(1,3,2)
-plt.imshow(img_filtered, cmap='gray')
-plt.gca().set_title('img_filtered')
-plt.subplot(1,3,3)
+plt.subplot(1,2,2)
 plt.imshow(img_filtered_emphasised, cmap='gray')
-plt.gca().set_title('img_filtered_emphasised')
 plt.show()
 
 ### save images as text

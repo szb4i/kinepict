@@ -9,13 +9,13 @@ from utils.file.dva_reader import read_dva
 # start = time.time()
 
 ### read image
-img = plt.imread('./data/tree.jpg')
-img = img[:,:,0]
-img = img/img.max()
-noise = np.random.normal(0, 0.1, img.shape)
-img = img+noise
-img[img<0] = 0
-# img = read_dva('./data/23_kep_test/X-ray 70%/hasE.IMA')
+# img = plt.imread('./data/tree.jpg')
+# img = img[:,:,0]
+# img = img/img.max()
+# noise = np.random.normal(0, 0.1, img.shape)
+# img = img+noise
+# img[img<0] = 0
+img = read_dva('./data/23_kep_test/X-ray 70%/hasE.IMA')
 # img = read_dva('./data/PATIENT_28_1.XA.0001.0001.2020.05.26.07.40.37.199459.139512372.IMA')
 # img = read_dva('./data/23_kep_test/Prostate/US_9660096_24_1.IMA')
 # img = read_dva('./data/23_kep_test/Carotis 50%/CAR02IM5')
