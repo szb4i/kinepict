@@ -6,6 +6,8 @@ def get_snr(img_roi_pairs):
     total_area = 0
     for img_roi_pair in img_roi_pairs:
         signal = np.mean(img_roi_pair[0]) - np.mean(img_roi_pair[1])
+        if signal < 0:
+            continue
         noise = np.std(img_roi_pair[1])
         area = img_roi_pair[0].size
         n += 1
